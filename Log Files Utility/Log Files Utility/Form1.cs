@@ -244,15 +244,16 @@ namespace Log_Files_Utility
             Console.WriteLine("searchTermTextBox_KeyUp. Key pressed: " + e.KeyCode.ToString());
             if (e.KeyCode == Keys.Enter && searchTermTextBox.TextLength > 0)
             {
-                searchLogsButton.Enabled = true;
-            }
-            else if (searchTermTextBox.TextLength == 0)
-            {
-                searchLogsButton.Enabled = false;
+                startSearchButtonClicked();
             }
         }
 
         private void searchLogsButton_Click(object sender, EventArgs e)
+        {
+            startSearchButtonClicked();
+        }
+
+        private void startSearchButtonClicked()
         {
             searchLogsButton.Enabled = false;
             searchTermTextBox.Enabled = false;
@@ -326,6 +327,20 @@ namespace Log_Files_Utility
         }
 
         private void openFileButton_Click(object sender, EventArgs e)
+        {
+            openFile();
+        }
+
+        private void occurancesTree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            TreeNode n = occurancesTree.SelectedNode;
+            if (n.Level == 1)
+            {
+                openFile();
+            }
+        }
+
+        private void openFile()
         {
             string fileName = "";
             string lineNumber = "";

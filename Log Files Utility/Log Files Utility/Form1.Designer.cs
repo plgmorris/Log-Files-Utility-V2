@@ -243,6 +243,7 @@
             this.occurancesTree.Size = new System.Drawing.Size(235, 222);
             this.occurancesTree.TabIndex = 8;
             this.occurancesTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.occurancesTree_NodeMouseClick);
+            this.occurancesTree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.occurancesTree_NodeMouseDoubleClick);
             // 
             // searchLogsButton
             // 
