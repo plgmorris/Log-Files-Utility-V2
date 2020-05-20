@@ -10,6 +10,7 @@ namespace Log_Files_Utility
         private BackupUtil backup;
         private Thread backupUtilStartThread;
         private Thread searchFilesThread;
+        private Thread zippingThread;
         private LogFileUtil logFileUtil;
         bool chooseFolderTimerRunning;
 
@@ -133,9 +134,18 @@ namespace Log_Files_Utility
             saveFileDialog1.DefaultExt = ".zip";
             saveFileDialog1.Filter = "Zip Files (*.zip)|*.zip";
             saveFileDialog1.ShowDialog();
+            zippingThread = new Thread(() => zipFiles(saveFileDialog1.FileName));
+            zipBackupsButton.Enabled = false;
+            zipBackupsButton.Text = "Zipping Up";
+            zippingThread.Start();
+            zippingTimer.Start();
+        }
+
+        private void zipFiles(string destFile)
+        {
             try
             {
-                backup.zipUpFiles(saveFileDialog1.FileName);
+                backup.zipUpFiles(destFile);
             }
             catch (DllNotFoundException ex)
             {
@@ -148,8 +158,21 @@ namespace Log_Files_Utility
             {
                 MessageBox.Show("An Error occurred while zipping up files.",
                     "Exception", MessageBoxButtons.OK);
-                Console.WriteLine("Error occurred while trying to zip up files. \n" + ex.Message +
+                Console.WriteLine("Error occurred while trying to zip up files to " + destFile + ". \n" + ex.Message +
                     "\n" + ex.ToString());
+            }
+        }
+
+        private void zippingTimer_Tick(object sender, EventArgs e)
+        {
+            if (zippingThread != null)
+            {
+                if (!zippingThread.IsAlive)
+                {
+                    zippingTimer.Stop();
+                    zipBackupsButton.Enabled = true;
+                    zipBackupsButton.Text = "Zip Backups";
+                }
             }
         }
 
@@ -327,11 +350,6 @@ namespace Log_Files_Utility
                 Console.WriteLine("Error occured while openning file\n" + fileName +
                     "\n" + ex.ToString());
             }
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }
