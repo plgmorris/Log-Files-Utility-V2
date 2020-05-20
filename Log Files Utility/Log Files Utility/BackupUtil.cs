@@ -42,15 +42,6 @@ namespace Log_Files_Utility
             runBackup = false;
         }
 
-        public bool isFolderValid()
-        {
-            if (Directory.Exists(folder))
-            {
-                return true;
-            }
-            else return false;
-        }
-
         public bool isFolderStringEmpty()
         {
             if (folder == "") return true;
@@ -131,25 +122,26 @@ namespace Log_Files_Utility
 
         public bool deleteBackup()
         {
-            bool b = false;
             if (Directory.Exists(newDir))
             {
                 try
                 {
                     Directory.Delete(newDir, true);
                     newDir = "";
-                    b = true;
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("Error deleting Backup Log Files from folder: \n" +
                         newDir, "Error", MessageBoxButtons.OK);
                 }
+                return true;
             }
-            else MessageBox.Show("Apparently the backed up logs folder doesn't exist: \n" +
-                        newDir, "Error", MessageBoxButtons.OK);
-
-            return b;
+            else if (isNewDirSet())
+            {
+                MessageBox.Show("Apparently the backed up logs folder doesn't exist: \n" +
+                          newDir, "Error", MessageBoxButtons.OK);
+            }
+            return false;
         }
     }
 }

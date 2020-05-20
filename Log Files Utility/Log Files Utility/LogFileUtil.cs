@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 namespace Log_Files_Utility
 {
@@ -136,6 +138,34 @@ namespace Log_Files_Utility
             }
             Console.WriteLine("Notepad++ is NOT installed");
             return false;
+        }
+
+        public static bool openFolder(string folder)
+        {
+
+            if (Directory.Exists(folder))
+            {
+                Process p;
+                try
+                {
+                    p = new Process();
+                    p.StartInfo.FileName = "explorer.exe";
+                    p.StartInfo.Arguments = "\"" + folder + "\"";
+                    p.Start();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error opening Folder " + folder + " \n e.ToString()");
+                    throw e;
+                }
+                return true;
+            }
+            else return false;
+        }
+
+        public static bool isFolderValid(string folder)
+        {
+            return (Directory.Exists(folder));
         }
     }
 }

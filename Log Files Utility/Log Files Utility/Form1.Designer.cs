@@ -42,6 +42,7 @@
             this.chooseLogsFolderTimer = new System.Windows.Forms.Timer(this.components);
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.openFolder = new System.Windows.Forms.Button();
             this.dummyAcceptButton = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.openFileButton = new System.Windows.Forms.Button();
@@ -159,18 +160,18 @@
             this.folderPathBackups.Size = new System.Drawing.Size(261, 20);
             this.folderPathBackups.TabIndex = 3;
             this.folderPathBackups.TextChanged += new System.EventHandler(this.folderPathBackups_TextChanged);
-            this.folderPathBackups.KeyUp += new System.Windows.Forms.KeyEventHandler(this.folderPathBackups_KeyDown);
+            this.folderPathBackups.KeyUp += new System.Windows.Forms.KeyEventHandler(this.folderPathBackups_KeyUp);
             // 
             // chooseLogsFolderTimer
             // 
-            this.chooseLogsFolderTimer.Enabled = true;
-            this.chooseLogsFolderTimer.Interval = 2500;
+            this.chooseLogsFolderTimer.Interval = 1500;
             this.chooseLogsFolderTimer.Tick += new System.EventHandler(this.chooseLogsFolderTimer_Tick);
             // 
             // groupBox2
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.openFolder);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.folderPathBackups);
             this.groupBox2.Controls.Add(this.chooseFolderBackupButton);
@@ -181,10 +182,21 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Choose Logs Folder";
             // 
+            // openFolder
+            // 
+            this.openFolder.Enabled = false;
+            this.openFolder.Location = new System.Drawing.Point(386, 39);
+            this.openFolder.Name = "openFolder";
+            this.openFolder.Size = new System.Drawing.Size(91, 23);
+            this.openFolder.TabIndex = 6;
+            this.openFolder.Text = "Open Folder";
+            this.openFolder.UseVisualStyleBackColor = true;
+            this.openFolder.Click += new System.EventHandler(this.openFolder_Click);
+            // 
             // dummyAcceptButton
             // 
             this.dummyAcceptButton.Enabled = false;
-            this.dummyAcceptButton.Location = new System.Drawing.Point(299, -1);
+            this.dummyAcceptButton.Location = new System.Drawing.Point(233, -1);
             this.dummyAcceptButton.Name = "dummyAcceptButton";
             this.dummyAcceptButton.Size = new System.Drawing.Size(122, 23);
             this.dummyAcceptButton.TabIndex = 3;
@@ -353,6 +365,7 @@
         private System.Windows.Forms.Button dummyAcceptButton;
         private System.Windows.Forms.Timer chooseLogsFolderTimer2;
         private System.Windows.Forms.Timer zippingTimer;
+        private System.Windows.Forms.Button openFolder;
     }
 }
 

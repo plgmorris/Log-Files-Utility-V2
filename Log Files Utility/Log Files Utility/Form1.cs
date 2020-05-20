@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Log_Files_Utility
 {
@@ -24,84 +25,82 @@ namespace Log_Files_Utility
             chooseFolderTimerRunning = false;
         }
 
+        /* Choose Folder and Validate ------------------------------------------------ */
+
         private void chooseFolderBackupButton_Click(object sender, EventArgs e)
         {
+            Console.WriteLine("inside chooseFolderBackupButton_Click");
             folderBrowserDialog1.ShowDialog();
-            folderPathBackups.Text = folderBrowserDialog1.SelectedPath;
+            Console.WriteLine("folder chosen");
+            if (validateFolder(folderBrowserDialog1.SelectedPath))
+            {
+                folderPathBackups.Text = folderBrowserDialog1.SelectedPath;
+            }
         }
 
-        private void folderPathBackups_KeyDown(object sender, KeyEventArgs e)
+        private void folderPathBackups_KeyUp(object sender, KeyEventArgs e)
         {
             Console.WriteLine("folderPathBackups_KeyDown. key pressed: " + e.KeyCode.ToString());
             if (e.KeyCode == Keys.Enter && !chooseFolderTimerRunning)
             {
-                Console.WriteLine("Enter Key pressed");
                 chooseLogsFolderTimer.Stop();
-                if (processFolderUpdate(folderPathBackups.Text) && backup.isFolderValid())
-                {
-                    Console.WriteLine("enabling search fields");
-                    enableSearchFields();
-                }
+                validateFolder(folderPathBackups.Text);
             }
         }
 
-        private bool processFolderUpdate(string folderPath)
+        private void folderPathBackups_TextChanged(object sender, EventArgs e)
         {
-            DialogResult dialogResult = DialogResult.None;
-            bool b = true;
-
-            if (backup.getFolder() != folderPath && !backup.isFolderStringEmpty() && backup.isNewDirSet())
-            {
-                dialogResult = MessageBox.Show("The path has changed, we will need to delete any current backed up \n" +
-                    "log files first.\nCan we continue?", "Delete Current Logs", MessageBoxButtons.YesNo);
-            }
-            if (dialogResult == DialogResult.No)
-            {
-                b = false;
-            }
-            else if (dialogResult == DialogResult.Yes)
-            {
-                b = true;
-                backup.deleteBackup();
-            }
-
-            if (b)
-            {
-                backup.setFolder(folderPath);
-
-                if (backup.isFolderValid())
-                {
-                    startStopBackup.Enabled = true;
-                }
-                else
-                {
-                    startStopBackup.Enabled = false;
-
-                    if (!backup.isFolderStringEmpty())
-                    {
-                        chooseFolderTimerRunning = true;
-                        MessageBox.Show("Chosen Folder Path does not exist.\nPlease choose again.",
-                            "Invalid Folder Path",
-                            MessageBoxButtons.OK);
-                        chooseLogsFolderTimer2.Start();
-                    }
-                }
-            }
-            return b;
+            chooseLogsFolderTimer.Stop();
+            chooseLogsFolderTimer.Start();
         }
+
+        private void chooseLogsFolderTimer_Tick(object sender, EventArgs e)
+        {
+            chooseLogsFolderTimer.Stop();
+            validateFolder(folderPathBackups.Text);
+        }
+
+        private bool validateFolder(string folder)
+        {
+            if (LogFileUtil.isFolderValid(folder))
+            {
+                DialogResult dialogResult = DialogResult.Yes;
+                if (backup.isNewDirSet() && backup.getFolder() != folder && !backup.isFolderStringEmpty())
+                {
+                    dialogResult = MessageBox.Show("The path has changed, we will need to delete any current backed up \n" +
+                    "log files first.\nCan we continue?", "Delete Current Logs", MessageBoxButtons.YesNo);
+                }
+                if (dialogResult == DialogResult.Yes)
+                {
+                    backup.deleteBackup();
+                    chooseFolderTimerRunning = true;
+                    chooseLogsFolderTimer2.Start();
+                    openFolder.Enabled = true;
+                    if (backupSearchPattern.TextLength > 0)
+                    {
+                        startStopBackup.Enabled = true;
+                    }
+                    searchTermTextBox.Enabled = true;
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                openFolder.Enabled = false;
+                startStopBackup.Enabled = false;
+                searchTermTextBox.Enabled = false;
+                return false;
+            }
+        }
+
+        /* ---------------------------------------------------------------------------- */
 
         private void startStopBackup_Click(object sender, EventArgs e)
         {
-            if (processFolderUpdate(folderPathBackups.Text))
+            if (startStopBackup.Text == "Start")
             {
-                startStopBackupRun();
-            }
-        }
-
-        private void startStopBackupRun()
-        {
-            if (startStopBackup.Text == "Start" && backup.isFolderValid())
-            {
+                backup.setFolder(folderPathBackups.Text);
                 backup.setSearchPattern(backupSearchPattern.Text);
                 backupUtilStartThread = new Thread(() => backup.startBackup(30));
                 backupUtilStartThread.Start();
@@ -127,6 +126,25 @@ namespace Log_Files_Utility
                 chooseFolderBackupButton.Enabled = true;
             }
         }
+
+        private void openFolder_Click(object sender, EventArgs e)
+        {
+            bool s;
+            try
+            {
+                s = LogFileUtil.openFolder(folderPathBackups.Text);
+                if (s == false)
+                {
+                    MessageBox.Show("Folder does not exist. Please enter a new folder", "Folder Doesn't Exist", MessageBoxButtons.OK);
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occurred while opening folder.", "Error Occurred", MessageBoxButtons.OK);
+            }
+        }
+
+        /* Zipping section */
 
         private void zipBackupsButton_Click(object sender, EventArgs e)
         {
@@ -199,25 +217,10 @@ namespace Log_Files_Utility
             backup.stopBackup();
         }
 
-        private void chooseLogsFolderTimer_Tick(object sender, EventArgs e)
-        {
-            chooseLogsFolderTimer.Stop();
-            if (processFolderUpdate(folderPathBackups.Text) && backup.isFolderValid())
-            {
-                enableSearchFields();
-            }
-        }
-
         private void chooseLogsFolderTimer2_Tick(object sender, EventArgs e)
         {
             chooseLogsFolderTimer2.Stop();
             chooseFolderTimerRunning = false;
-        }
-
-        private void folderPathBackups_TextChanged(object sender, EventArgs e)
-        {
-            chooseLogsFolderTimer.Stop();
-            chooseLogsFolderTimer.Start();
         }
 
         /*--------------------------------------------------------------------------*/
