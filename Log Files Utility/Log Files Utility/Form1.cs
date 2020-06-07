@@ -65,14 +65,13 @@ namespace Log_Files_Utility
             if (LogFileUtil.isFolderValid(folder))
             {
                 DialogResult dialogResult = DialogResult.Yes;
-                if (backup.isNewDirSet() && backup.getFolder() != folder && !backup.isFolderStringEmpty())
-                {
-                    dialogResult = MessageBox.Show("The path has changed, we will need to delete any current backed up \n" +
-                    "log files first.\nCan we continue?", "Delete Current Logs", MessageBoxButtons.YesNo);
-                }
+                //if (backup.isNewDirSet() && backup.getFolder() != folder && !backup.isFolderStringEmpty())
+                //{
+                //    dialogResult = MessageBox.Show("The path has changed, we will need to delete any current backed up \n" +
+                //    "log files first.\nCan we continue?", "Delete Current Logs", MessageBoxButtons.YesNo);
+                //}
                 if (dialogResult == DialogResult.Yes)
                 {
-                    backup.deleteBackup();
                     chooseFolderTimerRunning = true;
                     chooseLogsFolderTimer2.Start();
                     openFolder.Enabled = true;
@@ -146,7 +145,7 @@ namespace Log_Files_Utility
             }
         }
 
-        /* Zipping section */
+        /* Zipping section ------------------------------------------------------------- */
 
         private void zipBackupsButton_Click(object sender, EventArgs e)
         {
@@ -198,25 +197,8 @@ namespace Log_Files_Utility
 
         private void deleteBackupsButton_Click(object sender, EventArgs e)
         {
-            if (backup.deleteBackup())
-            {
-                zipBackupsButton.Enabled = false;
-                deleteBackupsButton.Enabled = false;
-            }
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (backup.isNewDirSet())
-            {
-                DialogResult d = MessageBox.Show("There may be backup files, can we delete them?\n" +
-                    "If you select No, please remember to delete manually later",
-                    "Delete backed up logs?",
-                    MessageBoxButtons.YesNo);
-
-                if (d == DialogResult.Yes) backup.deleteBackup();
-            }
-            backup.stopBackup();
+            backup.deleteBackup();
+            deleteBackupsButton.Enabled = false;
         }
 
         private void chooseLogsFolderTimer2_Tick(object sender, EventArgs e)
@@ -225,7 +207,7 @@ namespace Log_Files_Utility
             chooseFolderTimerRunning = false;
         }
 
-        /*--------------------------------------------------------------------------*/
+        /* Search Log Files  ----------------------------------------------------------- */
 
         private void enableSearchFields()
         {
@@ -274,7 +256,6 @@ namespace Log_Files_Utility
 
         private void startSearch()
         {
-            searchLogsButton.Enabled = false;
             logFileUtil.startSearch();
         }
 
@@ -370,6 +351,22 @@ namespace Log_Files_Utility
                 Console.WriteLine("Error occured while openning file\n" + fileName +
                     "\n" + ex.ToString());
             }
+        }
+
+        /* Closing the App  -------------------------------------------------------------------------------- */
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (backup.isNewDirSet())
+            {
+                DialogResult d = MessageBox.Show("There may be backup files, can we delete them?\n" +
+                    "If you select No, please remember to delete manually later",
+                    "Delete backed up logs?",
+                    MessageBoxButtons.YesNo);
+
+                if (d == DialogResult.Yes) backup.deleteBackup();
+            }
+            backup.stopBackup();
         }
     }
 }

@@ -4,6 +4,8 @@ using System.IO;
 using System.Windows.Forms;
 using System.Threading;
 using Ionic.Zip;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Log_Files_Utility
 {
@@ -11,7 +13,7 @@ namespace Log_Files_Utility
     {
         private string folder;
         private string searchPattern;
-        private string newDir;
+        private ICollection<string> newDir;
         private bool runBackup;
         private int timeout; // in seconds
 
@@ -19,7 +21,7 @@ namespace Log_Files_Utility
         {
             folder = "";
             timeout = 30;
-
+            newDir = new HashSet<string>();
         }
 
         public void setFolder(string s)
@@ -50,8 +52,7 @@ namespace Log_Files_Utility
 
         public bool isNewDirSet()
         {
-            if (newDir != "" && newDir != null) return true;
-            else return false;
+            return newDir.Count > 0;
         }
 
         public void startBackup(int t)
@@ -59,34 +60,38 @@ namespace Log_Files_Utility
             timeout = t;
             runBackup = true;
             DateTime dateTime;
-            dateTime = DateTime.Now;
-            newDir = folder + "\\" + dateTime.Year + dateTime.Month + dateTime.Day;
-
+            
             do
             {
                 dateTime = DateTime.Now;
+                string dir = folder + "\\" + dateTime.ToString("yyyyMMdd");
+                //string dir2 = folder + "\\" + dateTime.Year + dateTime.Month + dateTime.Day;
                 string[] files = System.IO.Directory.GetFiles(folder, "*" + searchPattern + "*");
 
                 //MessageBox.Show("Date: " + dateTime.ToShortDateString(), "Files", MessageBoxButtons.OK);
 
-                if (!Directory.Exists(newDir))
+                if (!Directory.Exists(dir))
                 {
-                    Directory.CreateDirectory(newDir);
+                    Directory.CreateDirectory(dir);
+                }
+                if (!newDir.Contains(dir))
+                {
+                    newDir.Add(dir);
                 }
 
                 foreach (string file in files)
                 {
-                    string hour = dateTime.Hour.ToString();
-                    if (hour.Length == 1) hour = "0" + dateTime.Hour.ToString();
-                    string minute = dateTime.Minute.ToString();
-                    if (minute.Length == 1) minute = "0" + dateTime.Minute.ToString();
-                    string second = dateTime.Second.ToString();
-                    if (second.Length == 1) second = "0" + dateTime.Second.ToString();
+                    //string hour = dateTime.Hour.ToString();
+                    //if (hour.Length == 1) hour = "0" + dateTime.Hour.ToString();
+                    //string minute = dateTime.Minute.ToString();
+                    //if (minute.Length == 1) minute = "0" + dateTime.Minute.ToString();
+                    //string second = dateTime.Second.ToString();
+                    //if (second.Length == 1) second = "0" + dateTime.Second.ToString();
 
-                    StringBuilder newFile = new StringBuilder(newDir + file.Substring(file.LastIndexOf('\\')));
+                    StringBuilder newFile = new StringBuilder(dir + file.Substring(file.LastIndexOf('\\')));
                     string fileExtension = file.Substring(file.LastIndexOf('.'));
                     newFile.Remove(newFile.ToString().LastIndexOf('.'), fileExtension.Length);
-                    newFile.Append(" " + hour + minute + second + fileExtension);
+                    newFile.Append(dateTime.ToString("HHmmss") + fileExtension);
                     //Console.WriteLine("New File: " + newFile.ToString());
 
                     File.Move(file, newFile.ToString());
@@ -109,10 +114,12 @@ namespace Log_Files_Utility
                 {
                     foreach (string item in allFiles)
                     {
+                        Console.WriteLine(item.Substring(dir.Length));
                         if (item.EndsWith(".log") || item.EndsWith(".txt"))
                         {
                             Console.WriteLine("Adding file to Zip File: " + item);
-                            zip.AddFile(item);
+                            ZipEntry e = zip.AddFile(item);
+                            e.FileName = item.Substring(dir.Length + 1);
                         }
                     }
                     zip.Save(destination);
@@ -128,28 +135,31 @@ namespace Log_Files_Utility
             }
         }
 
-        public bool deleteBackup()
+        public void deleteBackup()
         {
-            if (Directory.Exists(newDir))
+            if (newDir.Count > 0)
             {
-                try
+                Console.WriteLine(newDir.Count);
+                foreach (string dir2 in newDir)
                 {
-                    Directory.Delete(newDir, true);
-                    newDir = "";
+                    Console.WriteLine(dir2);
+                    if (Directory.Exists(dir2))
+                    {
+                        try
+                        {
+                            Directory.Delete(dir2, true);
+                        }
+                        catch (Exception)
+                        {
+                            MessageBox.Show("Error deleting Backup Log Files from folder: \n" +
+                                dir2, "Error", MessageBoxButtons.OK);
+                        }
+                    }
                 }
-                catch (Exception)
-                {
-                    MessageBox.Show("Error deleting Backup Log Files from folder: \n" +
-                        newDir, "Error", MessageBoxButtons.OK);
-                }
-                return true;
+
+                newDir.Clear();
+                Console.WriteLine("backup directories deleted. Directory Length: " + newDir.Count);
             }
-            else if (isNewDirSet())
-            {
-                MessageBox.Show("Apparently the backed up logs folder doesn't exist: \n" +
-                          newDir, "Error", MessageBoxButtons.OK);
-            }
-            return false;
         }
     }
 }
