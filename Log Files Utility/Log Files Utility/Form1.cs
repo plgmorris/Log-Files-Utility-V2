@@ -81,6 +81,7 @@ namespace Log_Files_Utility
                         startStopBackup.Enabled = true;
                     }
                     searchTermTextBox.Enabled = true;
+                    zipBackupsButton.Enabled = true;
                     return true;
                 }
                 return false;
@@ -90,6 +91,7 @@ namespace Log_Files_Utility
                 openFolder.Enabled = false;
                 startStopBackup.Enabled = false;
                 searchTermTextBox.Enabled = false;
+                zipBackupsButton.Enabled = false;
                 return false;
             }
         }
@@ -152,18 +154,18 @@ namespace Log_Files_Utility
             saveFileDialog1.DefaultExt = ".zip";
             saveFileDialog1.Filter = "Zip Files (*.zip)|*.zip";
             saveFileDialog1.ShowDialog();
-            zippingThread = new Thread(() => zipFiles(saveFileDialog1.FileName));
+            zippingThread = new Thread(() => zipFiles(saveFileDialog1.FileName, folderPathBackups.Text));
             zipBackupsButton.Enabled = false;
             zipBackupsButton.Text = "Zipping Up";
             zippingThread.Start();
             zippingTimer.Start();
         }
 
-        private void zipFiles(string destFile)
+        private void zipFiles(string destFile, string dir)
         {
             try
             {
-                backup.zipUpFiles(destFile);
+                BackupUtil.zipUpFiles(destFile, dir);
             }
             catch (DllNotFoundException ex)
             {
@@ -189,7 +191,7 @@ namespace Log_Files_Utility
                 {
                     zippingTimer.Stop();
                     zipBackupsButton.Enabled = true;
-                    zipBackupsButton.Text = "Zip Backups";
+                    zipBackupsButton.Text = "Zip Up Logs";
                 }
             }
         }

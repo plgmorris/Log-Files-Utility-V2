@@ -100,13 +100,21 @@ namespace Log_Files_Utility
             while (runBackup);
         }
 
-        public void zipUpFiles(string destination)
+        public static void zipUpFiles(string destination, string dir)
         {
+            string[] allFiles = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
             try
             {
                 using (ZipFile zip = new ZipFile())
                 {
-                    zip.AddDirectory(newDir);
+                    foreach (string item in allFiles)
+                    {
+                        if (item.EndsWith(".log") || item.EndsWith(".txt"))
+                        {
+                            Console.WriteLine("Adding file to Zip File: " + item);
+                            zip.AddFile(item);
+                        }
+                    }
                     zip.Save(destination);
                 }
             }
