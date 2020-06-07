@@ -116,7 +116,7 @@
             this.zipBackupsButton.Size = new System.Drawing.Size(92, 23);
             this.zipBackupsButton.TabIndex = 1;
             this.zipBackupsButton.Tag = "zipLogs";
-            this.zipBackupsButton.Text = "Zip Backpus";
+            this.zipBackupsButton.Text = "Zip Up Logs";
             this.zipBackupsButton.UseVisualStyleBackColor = true;
             this.zipBackupsButton.Click += new System.EventHandler(this.zipBackupsButton_Click);
             // 
