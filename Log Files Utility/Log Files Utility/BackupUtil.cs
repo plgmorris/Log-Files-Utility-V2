@@ -81,13 +81,6 @@ namespace Log_Files_Utility
 
                 foreach (string file in files)
                 {
-                    //string hour = dateTime.Hour.ToString();
-                    //if (hour.Length == 1) hour = "0" + dateTime.Hour.ToString();
-                    //string minute = dateTime.Minute.ToString();
-                    //if (minute.Length == 1) minute = "0" + dateTime.Minute.ToString();
-                    //string second = dateTime.Second.ToString();
-                    //if (second.Length == 1) second = "0" + dateTime.Second.ToString();
-
                     StringBuilder newFile = new StringBuilder(dir + file.Substring(file.LastIndexOf('\\')));
                     string fileExtension = file.Substring(file.LastIndexOf('.'));
                     newFile.Remove(newFile.ToString().LastIndexOf('.'), fileExtension.Length);
