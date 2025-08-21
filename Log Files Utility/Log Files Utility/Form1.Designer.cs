@@ -162,6 +162,10 @@
             this.folderPathBackups.TextChanged += new System.EventHandler(this.folderPathBackups_TextChanged);
             this.folderPathBackups.KeyUp += new System.Windows.Forms.KeyEventHandler(this.folderPathBackups_KeyUp);
             // 
+            // folderBrowserDialog1
+            // 
+            this.folderBrowserDialog1.SelectedPath = "C:\\Program Files (x86)\\Insignia\\Departmental Server\\Logs";
+            // 
             // chooseLogsFolderTimer
             // 
             this.chooseLogsFolderTimer.Interval = 1500;
