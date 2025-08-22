@@ -159,6 +159,7 @@
             this.folderPathBackups.Name = "folderPathBackups";
             this.folderPathBackups.Size = new System.Drawing.Size(261, 20);
             this.folderPathBackups.TabIndex = 3;
+            this.folderPathBackups.Text = "C:\\Program Files (x86)\\Insignia\\Departmental Server\\Logs";
             this.folderPathBackups.TextChanged += new System.EventHandler(this.folderPathBackups_TextChanged);
             this.folderPathBackups.KeyUp += new System.Windows.Forms.KeyEventHandler(this.folderPathBackups_KeyUp);
             // 

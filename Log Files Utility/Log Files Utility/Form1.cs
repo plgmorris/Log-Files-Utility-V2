@@ -23,6 +23,8 @@ namespace Log_Files_Utility
             backupUtilStartThread = null;
             logFileUtil = new LogFileUtil();
             chooseFolderTimerRunning = false;
+
+            chooseLogsFolderTimer.Start();
         }
 
         /* Choose Folder and Validate ------------------------------------------------ */
@@ -101,31 +103,41 @@ namespace Log_Files_Utility
         {
             if (startStopBackup.Text == "Start")
             {
-                backup.setFolder(folderPathBackups.Text);
-                backup.setSearchPattern(backupSearchPattern.Text);
-                backupUtilStartThread = new Thread(() => backup.startBackup(30));
-                backupUtilStartThread.Start();
-
-                backupSearchPattern.Enabled = false;
-                folderPathBackups.Enabled = false;
-                deleteBackupsButton.Enabled = false;
-                chooseFolderBackupButton.Enabled = false;
-                zipBackupsButton.Enabled = true;
-                startStopBackup.Text = "Stop";
+                BackupStart();
             }
             else if (startStopBackup.Text == "Stop")
             {
-                backup.stopBackup();
-                startStopBackup.Text = "Stopping";
-                startStopBackup.Enabled = false;
-                while (backupUtilStartThread.IsAlive) { }
-                startStopBackup.Text = "Start";
-                startStopBackup.Enabled = true;
-                backupSearchPattern.Enabled = true;
-                folderPathBackups.Enabled = true;
-                if (backup.isNewDirSet()) deleteBackupsButton.Enabled = true;
-                chooseFolderBackupButton.Enabled = true;
+                BackupStop();
             }
+        }
+
+        private void BackupStart()
+        {
+            backup.setFolder(folderPathBackups.Text);
+            backup.setSearchPattern(backupSearchPattern.Text);
+            backupUtilStartThread = new Thread(() => backup.startBackup(30));
+            backupUtilStartThread.Start();
+
+            backupSearchPattern.Enabled = false;
+            folderPathBackups.Enabled = false;
+            deleteBackupsButton.Enabled = false;
+            chooseFolderBackupButton.Enabled = false;
+            zipBackupsButton.Enabled = true;
+            startStopBackup.Text = "Stop";
+        }
+
+        private void BackupStop()
+        {
+            backup.stopBackup();
+            startStopBackup.Text = "Stopping";
+            startStopBackup.Enabled = false;
+            while (backupUtilStartThread.IsAlive) { }
+            startStopBackup.Text = "Start";
+            startStopBackup.Enabled = true;
+            backupSearchPattern.Enabled = true;
+            folderPathBackups.Enabled = true;
+            if (backup.isNewDirSet()) deleteBackupsButton.Enabled = true;
+            chooseFolderBackupButton.Enabled = true;
         }
 
         private void openFolder_Click(object sender, EventArgs e)
@@ -164,7 +176,7 @@ namespace Log_Files_Utility
         {
             try
             {
-                BackupUtil.zipUpFiles(destFile, dir);
+                BackupUtil.ZipUpFiles2(destFile, dir);
             }
             catch (DllNotFoundException ex)
             {
@@ -362,11 +374,18 @@ namespace Log_Files_Utility
                 DialogResult d = MessageBox.Show("There may be backup files, can we delete them?\n" +
                     "If you select No, please remember to delete manually later",
                     "Delete backed up logs?",
-                    MessageBoxButtons.YesNo);
+                    MessageBoxButtons.YesNoCancel);
 
-                if (d == DialogResult.Yes) backup.deleteBackup();
+                if (d == DialogResult.Yes)
+                {
+                    BackupStop();
+                    backup.deleteBackup();
+                }
+                else if (d == DialogResult.No) BackupStop();
+                else if (d == DialogResult.Cancel) e.Cancel = true;
             }
-            backup.stopBackup();
+            else BackupStop();
+
         }
     }
 }

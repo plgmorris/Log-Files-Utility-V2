@@ -3,9 +3,10 @@ using System.Text;
 using System.IO;
 using System.Windows.Forms;
 using System.Threading;
-using Ionic.Zip;
-using System.Collections;
+//using Ionic.Zip;
 using System.Collections.Generic;
+using System.IO.Compression;
+//using Ionic.Zip;
 
 namespace Log_Files_Utility
 {
@@ -20,7 +21,7 @@ namespace Log_Files_Utility
         public BackupUtil()
         {
             folder = "";
-            timeout = 30;
+            timeout = 60;
             newDir = new HashSet<string>();
         }
 
@@ -98,6 +99,19 @@ namespace Log_Files_Utility
             while (runBackup);
         }
 
+        public static void ZipUpFiles2(string destination, string dir)
+        {
+            try
+            {
+                ZipFile.CreateFromDirectory(dir, destination);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /*
         public static void zipUpFiles(string destination, string dir)
         {
             string[] allFiles = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
@@ -127,6 +141,7 @@ namespace Log_Files_Utility
                 throw e;
             }
         }
+        */
 
         public void deleteBackup()
         {
